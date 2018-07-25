@@ -1,16 +1,16 @@
-# lnmp
+# docker-lnmp
 Docker镜像，包括Linux + Nginx + Mysql + PHP + Redis
 
 ## 1. 功能
 1. 支持PHP多版本切换(5.4/5.6/7.2)
-2. Mysql映射到宿主机目录lnmp/mysql
+2. Mysql映射到宿主机目录docker-lnmp/mysql
 3. 支持mysql/nginx/php日志
-4. 站点配置见lnmp/conf/conf.d
+4. 站点配置见docker-lnmp/conf/conf.d
 5. 支持脚本定时备份mysql数据库、定时删除旧的备份
 
 ## 2. 使用说明
 - 更新系统：yum -y upgrade
-- 安装git
+- 安装git(centos)
     ```
     $ yum -y install git
     ```
@@ -39,9 +39,9 @@ Docker镜像，包括Linux + Nginx + Mysql + PHP + Redis
     $ source ~/.bash_profile
     $ docker-compose --version
     ```
-- 拉取lnmp
+- 拉取docker-lnmp
     ```
-    $ git clone https://github.com/echobar/lnmp.git
+    $ git clone git@github.com:echobar/docker-lnmp.git
     ```
 - 配置docker-compose.yml
     如宿主机各端口（80, 3306, 6379, 9000）未被占用，请忽略本条。
@@ -75,23 +75,23 @@ Docker镜像，包括Linux + Nginx + Mysql + PHP + Redis
         默认时区会导致与北京时间相关8小时，在my.cnf的mysqld节增加：default-time-zone = '+8:00'
 - 启动容器
     ```
-    $ cd lnmp
+    $ cd docker-lnmp
     $ docker-compose up
     ```
 - 浏览器访问http://localhost
-    站点目录 `lnmp/www/site1`
+    站点目录 `docker-lnmp/www/site1`
 - 定时备份数据库、删除旧备份数据库
     ```
-    $ cat lnmp/bk/bk_ledger_test.sh
+    $ cat docker-lnmp/bk/bk_ledger_test.sh
         #!/bin/bash
         
-        bk_dir=/home/docker/lnmp/bk/db
+        bk_dir=/home/docker/docker-lnmp/bk/db
         db_name=ledger_test
         time=` date +%Y%m%d%H `
         mysqldump -h 127.0.0.1 -P 9306 -u root -proot ${db_name} | gzip > $bk_dir/${db_name}_$time.sql.gz
         find $bk_dir -name "${db_name}_*.sql.gz" -type f -mtime +3 -exec rm {} \; > /dev/null 2>&1
     $ crontab -e
-        30 3 * * * /home/docker/lnmp/bk/bk_ledger_test.sh
+        30 3 * * * /home/docker/docker-lnmp/bk/bk_ledger_test.sh
     $ service crond reload
     ```
     本脚本定时（每天凌晨3:30执行备份并压缩备份文件，之后删除3天以前的备份文件），可根据需要修改脚本
